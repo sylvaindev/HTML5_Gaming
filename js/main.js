@@ -1,15 +1,16 @@
 'use strict';
 var game = new Phaser.Game(1400, 670, Phaser.AUTO, '', { preload: preload, create: create, update: update });
- 
+
+
 function preload() {
 	game.load.image('space', 'images/space.jpg');
-    game.load.image('bullet', 'images/bullet.png');
+  game.load.image('bullet', 'images/bullet.png');
 	game.load.image('player1', 'images/player1.png');
 	game.load.image('player2', 'images/player2.png');
 	game.load.image('asteroid', 'images/asteroid.png');
-    game.load.spritesheet('explosionimg', 'images/explosion.png', 64, 64);
-    game.load.audio('explosion', 'sound/explosion.ogg');
-    game.load.audio('shot', 'sound/shot.wav');
+  game.load.spritesheet('explosionimg', 'images/explosion.png', 64, 64);
+  game.load.audio('explosion', 'sound/explosion.ogg');
+  game.load.audio('shot', 'sound/shot.wav');
 
 }
 
@@ -35,6 +36,7 @@ var player1;
 var player2;
 var explosionimg;
 var shotSound;
+var stateText;
 
 function create() {
 
@@ -87,6 +89,10 @@ function create() {
     player2leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
     player2rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
     player2shootKey = game.input.keyboard.addKey(Phaser.Keyboard.CONTROL);
+
+    stateText = game.add.text(game.world.centerX,game.world.centerY, ' ', { font: '84px Arial', fill: '#fff' });
+    stateText.anchor.setTo(0.5, 0.5);
+    stateText.visible = false;
 }
 
 function update() {
@@ -190,15 +196,6 @@ function fireBullet2 () {
     }
 }
 
-function endGame () {
-    game.input.onTap.addOnce(restart,this);
-
-}
-
-function restart (player) {
-
-player.kill();
-}
 
 function collisionHandler (bullet, player1) {
 
@@ -207,7 +204,9 @@ function collisionHandler (bullet, player1) {
     this.explosionSound.play();
     explosionimg.animations.play('explosion');
     bullet.kill();
-    endGame(player1);
+    stateText.text = " You Won, \n Click to restart";
+    stateText.visible = true;
+    game.input.onTap.addOnce(restart,this);
 }
 
 function collisionHandler2(bullet, target1){
@@ -221,9 +220,20 @@ function collisionHandler3 (bullet, player2) {
     this.explosionSound.play();
     explosionimg.animations.play('explosion');
     bullet.kill();
-    endGame(player2);
+    stateText.text = " You Won, \n Click to restart";
+    stateText.visible = true;
+    game.input.onTap.addOnce(restart,this);
 }
 
 function hitasteroid(target1, bullet){
     bullet.kill();
+}
+
+function restart () {
+    //revives the player
+    player1.revive();
+    player2.revive();
+    //hides the text
+    stateText.visible = false;
+
 }
